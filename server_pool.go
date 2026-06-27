@@ -30,6 +30,9 @@ func (s *ServerPool) MarkBackendStatus(u *url.URL, alive bool) {
 
 // GetNextPeer does a full cycle from the next index looking for an alive backend.
 func (s *ServerPool) GetNextPeer() *Backend {
+	if len(s.backends) == 0 {
+		return nil
+	}
 	next := s.NextIndex()
 	l := len(s.backends)
 	for i := 0; i < l; i++ {
