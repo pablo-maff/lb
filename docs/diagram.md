@@ -1,5 +1,47 @@
 # Load Balancer — How It Works
 
+## Package Dependency Graph
+
+```mermaid
+flowchart TD
+    cmd["cmd/lb\n(binary entry point)"]
+    bal["internal/balancer\n(ServerPool, Backend, proxy wiring)"]
+
+    cmd --> bal
+
+    subgraph stdlib ["Go stdlib"]
+        flag
+        fmt
+        log
+        net
+        net_http["net/http"]
+        net_http_httputil["net/http/httputil"]
+        net_url["net/url"]
+        strings
+        context
+        sync
+        sync_atomic["sync/atomic"]
+        time
+    end
+
+    cmd --> flag
+    cmd --> fmt
+    cmd --> log
+    cmd --> net_http
+    cmd --> net_url
+    cmd --> strings
+
+    bal --> context
+    bal --> log
+    bal --> net
+    bal --> net_http
+    bal --> net_http_httputil
+    bal --> net_url
+    bal --> sync
+    bal --> sync_atomic
+    bal --> time
+```
+
 ## Request Flow
 
 ```mermaid
