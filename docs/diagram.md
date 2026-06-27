@@ -4,12 +4,12 @@
 
 ```mermaid
 flowchart TD
-    Client([Client]) -->|HTTP request| LB
+    Client([Client]) -->|HTTP request| Handler
 
     subgraph LB ["Load Balancer (:3030)"]
-        LB[lb handler] -->|attempts > 3?| MaxCheck{Max attempts\nreached?}
+        Handler[lb handler] -->|attempts > 3?| MaxCheck{Max attempts reached?}
         MaxCheck -->|yes| R503A[503 Service Unavailable]
-        MaxCheck -->|no| Pool[ServerPool.GetNextPeer\nround-robin, skip dead]
+        MaxCheck -->|no| Pool[ServerPool.GetNextPeer round-robin skip dead]
         Pool -->|no alive peers| R503B[503 Service Unavailable]
         Pool -->|peer found| Proxy[ReverseProxy.ServeHTTP]
     end
@@ -19,17 +19,17 @@ flowchart TD
     Proxy -->|forward request| B3[Backend N]
 
     Proxy -->|error| EH[ErrorHandler]
-    EH -->|retries < 3| Retry[wait 10ms\nretry same backend]
+    EH -->|retries < 3| Retry[wait 10ms - retry same backend]
     Retry --> Proxy
-    EH -->|retries = 3| Mark[MarkBackendStatus dead\nincrement attempts]
-    Mark -->|recurse| LB
+    EH -->|retries = 3| Mark[MarkBackendStatus dead - increment attempts]
+    Mark -->|recurse| Handler
 ```
 
 ## Passive Health Check
 
 ```mermaid
 flowchart LR
-    Ticker[⏱ ticker\nevery 20s] --> HC[ServerPool.HealthCheck]
+    Ticker["⏱ ticker every 20s"] --> HC[ServerPool.HealthCheck]
     HC -->|TCP dial 2s timeout| B1[Backend A]
     HC -->|TCP dial 2s timeout| B2[Backend B]
     HC -->|TCP dial 2s timeout| B3[Backend N]
@@ -43,20 +43,20 @@ flowchart LR
 ```mermaid
 classDiagram
     class ServerPool {
-        backends []*Backend
-        current  uint64
-        AddBackend(b *Backend)
+        backends Backend[]
+        current uint64
+        AddBackend(b Backend)
         NextIndex() int
-        GetNextPeer() *Backend
-        MarkBackendStatus(u *url.URL, alive bool)
+        GetNextPeer() Backend
+        MarkBackendStatus(u URL, alive bool)
         HealthCheck()
     }
 
     class Backend {
-        URL *url.URL
+        URL URL
         Alive bool
-        mux sync.RWMutex
-        ReverseProxy *httputil.ReverseProxy
+        mux RWMutex
+        ReverseProxy ReverseProxy
         SetAlive(bool)
         IsAlive() bool
     }
