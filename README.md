@@ -2,10 +2,20 @@
 
 A simple round-robin HTTP load balancer in Go. No external dependencies.
 
+## Structure
+
+```
+cmd/lb/             # binary entry point (flag parsing, wiring)
+internal/balancer/  # ServerPool, Backend, proxy, health check
+test/               # integration tests (runs the binary over the network)
+docs/adr/           # architecture decision records
+docs/diagram.md     # request flow, health check, and package dependency diagrams
+```
+
 ## Run
 
 ```bash
-go build -o lb .
+go build -o lb ./cmd/lb
 ./lb -backends "http://localhost:3031,http://localhost:3032" -port 3030
 ```
 
@@ -27,5 +37,9 @@ See [`docs/diagram.md`](docs/diagram.md) for a visual breakdown and [`docs/adr/`
 ## Test
 
 ```bash
-go test ./...
+# unit tests
+go test ./internal/...
+
+# unit + integration tests
+go test -tags integration ./...
 ```
