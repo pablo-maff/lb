@@ -77,11 +77,9 @@ func (s *ServerPool) NewProxy(u *url.URL) *httputil.ReverseProxy {
 		log.Printf("[%s] error: %v\n", u.Host, e)
 		retries := getRetryFromContext(r)
 		if retries < 3 {
-			select {
-			case <-time.After(10 * time.Millisecond):
-				ctx := context.WithValue(r.Context(), retry, retries+1)
-				proxy.ServeHTTP(w, r.WithContext(ctx))
-			}
+			time.Sleep(10 * time.Millisecond)
+			ctx := context.WithValue(r.Context(), retry, retries+1)
+			proxy.ServeHTTP(w, r.WithContext(ctx))
 			return
 		}
 		s.MarkBackendStatus(u, false)
