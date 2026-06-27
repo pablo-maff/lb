@@ -2,6 +2,8 @@
 
 A simple round-robin HTTP load balancer in Go. No external dependencies.
 
+> Vibecoded as part of a workshop using [Claude Code](https://claude.ai/code), following the [kasvith tutorial](https://kasvith.me/posts/lets-create-a-simple-lb-go/).
+
 ## Structure
 
 ```
